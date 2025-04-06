@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [annonces, setAnnonces] = useState([]);
@@ -6,8 +6,16 @@ export default function Home() {
     titre: '',
     montant: '',
     duree: '',
-    description: ''
+    description: '',
   });
+
+  // Charger les annonces depuis localStorage au démarrage
+  useEffect(() => {
+    const annoncesStockees = localStorage.getItem('annonces');
+    if (annoncesStockees) {
+      setAnnonces(JSON.parse(annoncesStockees));
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,8 +23,22 @@ export default function Home() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setAnnonces([...annonces, formData]);
+    const nouvellesAnnonces = [...annonces, formData];
+    setAnnonces(nouvellesAnnonces);
+    localStorage.setItem('annonces', JSON.stringify(nouvellesAnnonces));
     setFormData({ titre: '', montant: '', duree: '', description: '' });
+  };
+
+  const handleVoirAnnonces = () => {
+    const annoncesStockees = localStorage.getItem('annonces');
+    if (annoncesStockees) {
+      setAnnonces(JSON.parse(annoncesStockees));
+    }
+  };
+
+  const handleViderAnnonces = () => {
+    localStorage.removeItem('annonces');
+    setAnnonces([]);
   };
 
   return (
@@ -30,7 +52,8 @@ export default function Home() {
           value={formData.titre}
           onChange={handleChange}
           required
-        /><br/><br/>
+        />
+        <br /><br />
         <input
           type="number"
           name="montant"
@@ -38,7 +61,8 @@ export default function Home() {
           value={formData.montant}
           onChange={handleChange}
           required
-        /><br/><br/>
+        />
+        <br /><br />
         <input
           type="text"
           name="duree"
@@ -46,26 +70,33 @@ export default function Home() {
           value={formData.duree}
           onChange={handleChange}
           required
-        /><br/><br/>
+        />
+        <br /><br />
         <textarea
           name="description"
           placeholder="Description"
           value={formData.description}
           onChange={handleChange}
           required
-        /><br/><br/>
+        ></textarea>
+        <br /><br />
         <button type="submit">Publier</button>
       </form>
+
+      <br />
+      <button onClick={handleVoirAnnonces}>Voir les annonces enregistrées</button>
+      &nbsp;
+      <button onClick={handleViderAnnonces}>Vider les annonces</button>
 
       <h2>Liste des annonces :</h2>
       <ul>
         {annonces.map((annonce, index) => (
           <li key={index}>
-            <strong>{annonce.titre}</strong> - {annonce.montant}€ sur {annonce.duree}<br/>
+            <strong>{annonce.titre}</strong> - {annonce.montant}€ sur {annonce.duree}<br />
             {annonce.description}
           </li>
         ))}
       </ul>
     </div>
   );
-            }
+                 }
